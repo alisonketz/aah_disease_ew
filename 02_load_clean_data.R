@@ -41,13 +41,23 @@ head(df_harv_aah)
 ### Loading raster of deer habitat
 ######################################################
 
-deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif.ovr")
+# deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
+deer_habitat_db <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
+deerhab_layers <- st_layers(dsn = "/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
+deer_habitat <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb",layer = "WD_HYDRO_WATERBODY_AR_24K_CLIPWI")
+plot(deer_habitat)
+names(deer_habitat)
+deer_hab <- st_as_stars(deer_habitat)
+
+
+# deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif.ovr")
 # deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/deer_habitat.tif")
+plot(deer_habitat)
 # deer_habitat <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif.ovr")
 county_whole <- terra::vect("~/Documents/Data/WI_SE_Shape_sections/county_bnds/county_bnds/county_bnds.shp")
-county_whole <- terra::project(county_whole,"epsg:4326")
+# county_whole <- terra::project(county_whole,"epsg:4326")
 
-dh <- terra::as.polygons(deer_habitat)
+# dh <- terra::as.polygons(deer_habitat)
 
 plot(deer_habitat)
 head(deer_habitat[is.finite(deer_habitat)])
