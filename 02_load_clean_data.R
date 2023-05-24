@@ -15,9 +15,15 @@
 ###
 
 filepath <- "~/Documents/Data/Harvest/"
-df_harv_dmu <-  read.csv(paste0(filepath,"AgingHarvestDMUs70A_73A_70C_70D_Thru2013_01-25-2018.csv"))
+
+df_harv_dmu <-  read.csv(paste0(filepath,"AgingHarvestStudyAreaDMUs.csv"))
 names(df_harv_dmu) <- tolower(gsub("[[:punct:]]","",names(df_harv_dmu)))
 head(df_harv_dmu)
+
+
+# df_harv_dmu <-  read.csv(paste0(filepath,"AgingHarvestDMUs70A_73A_70C_70D_Thru2013_01-25-2018.csv"))
+# names(df_harv_dmu) <- tolower(gsub("[[:punct:]]","",names(df_harv_dmu)))
+# head(df_harv_dmu)
 
 ###################################################################################################################################
 ###
@@ -37,82 +43,22 @@ head(df_harv_total)
 df_harv_aah <- df_harv_dmu[,c(1:2,11:ncol(df_harv_dmu))]
 head(df_harv_aah)
 
-######################################################
-### Loading raster of deer habitat
-######################################################
 
-
-deer_habitat_db <- sf::st_read("/media/aketz/DEFE-8207/DeerRange_05102017.gdb")
-deerhab_layers <- st_layers(dsn = "/media/aketz/DEFE-8207/DeerRange_05102017.gdb")
-deerhab_layers
-deer_habitat <- sf::st_read("/media/aketz/DEFE-8207/DeerRange_05102017.gdb",layer = "WD_HYDRO_WATERBODY_AR_24K_CLIPWI")
-
-
-
-deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif")
-# deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/deer_habitat.tif")
-hab <- project(deer_habitat,"EPSG:3071")
-
-plot(hab)
-
-
-# deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
-# deer_habitat_db <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
-# deerhab_layers <- st_layers(dsn = "/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
-# deer_habitat <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb",layer = "WD_HYDRO_WATERBODY_AR_24K_CLIPWI")
-# plot(deer_habitat)
-# names(deer_habitat)
-# deer_hab <- st_as_stars(deer_habitat)
-
-
-# deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif.ovr")
-# deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/deer_habitat.tif")
-plot(deer_habitat)
-# deer_habitat <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif.ovr")
-county_whole <- terra::vect("~/Documents/Data/WI_SE_Shape_sections/county_bnds/county_bnds/county_bnds.shp")
-# county_whole <- terra::project(county_whole,"epsg:4326")
-
-# dh <- terra::as.polygons(deer_habitat)
-
-plot(deer_habitat)
-head(deer_habitat[is.finite(deer_habitat)])
-
-# westernmostpt <- which(is.finite(deer_habitat),arr.ind=TRUE)
-
-head((deer_habitat))
-
-# values(deer_habitat)[!is.finite(values(deer_habitat))] <- 0
-# head(deer_habitat)
-crs(deer_habitat) <- "epsg:4326"
-ext(deer_habitat)  <- ext(county_whole)
-ext(deer_habitat) 
-
-png("figures/all_deer_habitat_wisc.png")
-plot(deer_habitat)
-dev.off()
-# ext(deer_habitat) <- c(-180,180,-90,90)
-
-# dh_proj <- terra::project(deer_habitat, "epsg:3071")
-# plot(dh_proj)
-# crs(deer_habitat) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" 
-# deer_habitat <- terra::project(deer_habitat,"epsg:3071")
-# b1 <- boundaries(deer_habitat)
 
 ######################################################
 ### Loading county-based polygon shapefile and 
 ### clip to counties of study area
 ######################################################
 
-county <- terra::vect("~/Documents/Data/WI_SE_Shape_sections/county_bnds/county_bnds/county_bnds.shp")
 county <- sf::st_read("~/Documents/Data/WI_SE_Shape_sections/county_bnds/county_bnds/county_bnds.shp")
-
+county <- st_transform(county,3701)
 county <- county[county$CTY_NAME %in% c("Dane","Iowa","Grant"),]
 grant <- county[county$CTY_NAME %in% c("Grant"),]
 iowa <- county[county$CTY_NAME %in% c("Iowa"),]
 dane <- county[county$CTY_NAME %in% c("Dane"),]
-# county <- terra::project(county,"epsg:4326")
+county_tres <- st_union(county)
+county_tres_bound <- sf::st_union(county_tres)
 
-plot(dane)
 # county <- terra::project(county,"epsg:3071")
 
 ######################################################
@@ -124,29 +70,190 @@ plot(dane)
 # study_df <- terra::project(study_df,"epsg:4326")
 
 study_df <- sf::st_read("~/Documents/Data/Study_Area/study_df.shp")
+study_df <- st_transform(study_df,3701)
 
-study_df_east_sect <- study_df[study_df$ew=="east",]
-study_df_west_sect <- study_df[study_df$ew=="west",]
+study_df_east_sect <- study_df[study_df$ew == "east",]
+study_df_west_sect <- study_df[study_df$ew == "west",]
 study_area_bound <- sf::st_union(study_df)
 study_east_bound <- sf::st_union(study_df_east_sect)
 study_west_bound <- sf::st_union(study_df_west_sect)
 
-st_
+st_write(study_area_bound,"~/Documents/Data/Study_Area/study_area_bound.shp")
+st_write(study_west_bound,"~/Documents/Data/Study_Area/study_west_bound.shp")
+st_write(study_east_bound,"~/Documents/Data/Study_Area/study_east_bound.shp")
 
 
-plot(study_east_bound)
+grant_w_study <- st_intersection(grant,study_area_bound)
+iowa_w_study <- st_intersection(iowa,study_west_bound)
+iowa_e_study <- st_intersection(iowa,study_east_bound)
+dane_e_study <- st_intersection(dane,study_area_bound)
 
-plot(study_area_bound)
-grant_w_study <- st_intersection(grant,study_df)
-plot(study_df)
-plot(grant_w_study)
+st_write(grant_w_study,"~/Documents/Data/Study_Area/grant_w_study.shp")
+st_write(iowa_w_study,"~/Documents/Data/Study_Area/iowa_w_study.shp")
+st_write(iowa_e_study,"~/Documents/Data/Study_Area/iowa_e_study.shp")
+st_write(dane_e_study,"~/Documents/Data/Study_Area/dane_e_study.shp")
 
-iowa_w_study <- st_intersection(iowa,study_df[study_df$ew=="west",])
-iowa_e_study <- st_intersection(iowa,study_df[study_df$ew=="east",])
+#convert from sf object to terra object for extraction
+grant_w_study <- vect(grant_w_study)
+iowa_w_study <- vect(iowa_w_study)
+iowa_e_study <- vect(iowa_e_study)
+dane_e_study <- vect(dane_e_study)
+county_tres_bound <- vect(count_tres_bound)
+grant <- vect(grant)
+iowa <- vect(iowa)
+dane <- vect(dane)
+# plot(study_df)
+# plot(grant_w_study)
+# plot(iowa_w_study)
+# plot(iowa_e_study)
+# plot(dane_e_study)
+# plot(county_tres_bound)
 
-plot(iowa_e_study)
+
+######################################################
+### Loading raster of deer habitat
+######################################################
+
+deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif")
+# deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/deer_habitat.tif")
+deer_habitat <- project(deer_habitat,"EPSG:3071")
+
+#crop the WI deer habitat to the three relevant counties
+hab <- crop(deer_habitat,county_tres_bound)
+# plot(hab)
+head(hab)
+
+#setting all na values to 0, which are not deer habitat
+hab[is.na(hab)] <- 0
+unique(hab$SQ_MI)
+
+######################################################
+### Loading county-based polygon shapefile and 
+### clip to counties of study area
+######################################################
+
+dmu86 <- sf::st_read("~/Documents/Data/Study_Area/dmu_1986.shp")
+dmu86 <- st_transform(dmu86,3701)
+dmu86 <- dmu86[dmu86$UNIT_ID %in% c("70A","70C","70D","73C","73"),]
+dmu86_bound <- st_union(dmu86)
+
+dmu99 <- sf::st_read("~/Documents/Data/Study_Area/dmu_1999.shp")
+dmu99 <- st_transform(dmu99,3701)
+dmu99 <- dmu99[dmu99$UNIT_ID %in% c("70A","70C","70D","73E"),]
+dmu99_bound <- st_union(dmu99)
+
+dmu13 <- sf::st_read("~/Documents/Data/DMU_shapefiles_2002_2013/dmu_2013.shp")
+dmu13 <- st_transform(dmu13,3701)
+dmu13 <- dmu13[dmu13$UNIT_ID %in% c("70A-CWD","70C-CWD","70D-CWD","73E-CWD"),]
+dmu13_bound <- st_union(dmu13)
 
 
+st_write(dmu86_bound,"~/Documents/Data/Study_Area/dmu86_bound.shp")
+st_write(dmu99_bound,"~/Documents/Data/Study_Area/dmu99_bound.shp")
+st_write(dmu13_bound,"~/Documents/Data/Study_Area/dmu13_bound.shp")
+
+# plot(dmu86)
+# table(dmu86$UNIT_ID)
+
+###########################################################################
+### creating dmu based intersections with the study area for each year
+### 1986
+###########################################################################
+
+dmu86_73 <- dmu86[dmu86$UNIT_ID == "73",]
+dmu86_73c <- dmu86[dmu86$UNIT_ID == "73C",]
+dmu86_70d <- dmu86[dmu86$UNIT_ID == "70D",]
+dmu86_70c <- dmu86[dmu86$UNIT_ID == "70C",]
+dmu86_70a <- dmu86[dmu86$UNIT_ID == "70A",]
+
+dmu86_73_w_study <- st_intersection(dmu86_73,study_area_bound)
+dmu86_73c_w_study <- st_intersection(dmu86_73c,study_area_bound)
+dmu86_70d_e_study <- st_intersection(dmu86_70d,study_area_bound)
+dmu86_70c_e_study <- st_intersection(dmu86_70c,study_area_bound)
+dmu86_70a_e_study <- st_intersection(dmu86_70a,study_area_bound)
+
+### 1999 DMU
+dmu99_73e <- dmu99[dmu99$UNIT_ID == "73E",]
+dmu99_70d <- dmu99[dmu99$UNIT_ID == "70D",]
+dmu99_70c <- dmu99[dmu99$UNIT_ID == "70C",]
+dmu99_70a <- dmu99[dmu99$UNIT_ID == "70A",]
+
+dmu99_73e_w_study <- st_intersection(dmu99_73e,study_west_bound)
+dmu99_70d_e_study <- st_intersection(dmu99_70d,study_east_bound)
+dmu99_70c_e_study <- st_intersection(dmu99_70c,study_area_bound)
+dmu99_70a_e_study <- st_intersection(dmu99_70a,study_area_bound)
+
+
+####2002-2013 DMU boundaries
+dmu13_73e_cwd <- dmu13[dmu13$UNIT_ID == "73E-CWD",]
+dmu13_70d_cwd <- dmu13[dmu13$UNIT_ID == "70D-CWD",]
+dmu13_70c_cwd <- dmu13[dmu13$UNIT_ID == "70C-CWD",]
+dmu13_70a_cwd <- dmu13[dmu13$UNIT_ID == "70A-CWD",]
+
+dmu13_73e_w_study <- st_intersection(dmu13_73e_cwd,study_west_bound)
+dmu13_70d_e_study <- st_intersection(dmu13_70d_cwd,study_east_bound)
+dmu13_70c_e_study <- st_intersection(dmu13_70c_cwd,study_area_bound)
+dmu13_70a_e_study <- st_intersection(dmu13_70a_cwd,study_area_bound)
+
+
+#############################################################################
+### extract the sum of the number of raster pixels 
+### that are deer habitat for each dmu/count/studyarea intersection part
+#############################################################################
+
+grant_all_hab <- extract(hab,grant)
+iowa_all_hab <- extract(hab,iowa)
+dane_all_hab <- extract(hab,dane)
+grant_w_study_hab <- extract(hab,grant_w_study)
+iowa_w_study_hab <- extract(hab,iowa_w_study)
+iowa_e_study_hab <- extract(hab,iowa_e_study)
+dane_e_study_hab <- extract(hab,dane_e_study)
+
+
+dmu86_73_all_hab <- extract(hab,dmu86_73)
+dmu86_73c_all_hab <- extract(hab,dmu86_73c)
+dmu86_70d_all_hab <- extract(hab,dmu86_70d)
+dmu86_70c_all_hab <- extract(hab,dmu86_70c)
+dmu86_70a_all_hab <- extract(hab,dmu86_70a)
+
+dmu86_73_w_study_hab <- extract(hab,dmu86_73_w_study)
+dmu86_73c_w_study_hab <- extract(hab,dmu86_73c_w_study)
+dmu86_70d_e_study_hab <- extract(hab,dmu86_70d_e_study)
+dmu86_70c_e_study_hab <- extract(hab,dmu86_70c_e_study)
+dmu86_70a_e_study_hab <- extract(hab,dmu86_70a_e_study)
+
+
+dmu99_73e_all_hab <- extract(hab,dmu99_73e)
+dmu99_70d_all_hab <- extract(hab,dmu99_70d)
+dmu99_70c_all_hab <- extract(hab,dmu99_70c)
+dmu99_70a_all_hab <- extract(hab,dmu99_70a)
+
+dmu99_73e_w_study_hab <- extract(hab,dmu99_73e_w_study)
+dmu99_70d_e_study_hab <- extract(hab,dmu99_70d_e_study)
+dmu99_70c_e_study_hab <- extract(hab,dmu99_70c_e_study)
+dmu99_70a_e_study_hab <- extract(hab,dmu99_70a_e_study)
+
+
+
+dmu13_73e_cwd_all_hab <- extract(hab,dmu13_73e_cwd)
+dmu13_70d_cwd_all_hab <- extract(hab,dmu13_70d_cwd)
+dmu13_70c_cwd_all_hab <- extract(hab,dmu13_70c_cwd)
+dmu13_70a_cwd_all_hab <- extract(hab,dmu13_70a)
+
+dmu13_73e_w_study_hab <- extract(hab,dmu13_73e_w_study)
+dmu13_70d_e_study_hab <- extract(hab,dmu13_70d_e_study)
+dmu13_70c_e_study_hab <- extract(hab,dmu13_70c_e_study)
+dmu13_70a_e_study_hab <- extract(hab,dmu13_70a_e_study)
+
+
+
+
+######################################################
+### Makin' relevant maps
+######################################################
+
+# study_area_old_dmus <- ggplot()+geom_sf(data=dmu86)+geom_sf(data=study_area_bound,color="darkred",alpha=.5)+theme_bw()
+# ggsave("figures/study_area_old_dmus.png")
 
 ######################################################
 ### Crop raster by county
