@@ -41,13 +41,28 @@ head(df_harv_aah)
 ### Loading raster of deer habitat
 ######################################################
 
+
+deer_habitat_db <- sf::st_read("/media/aketz/DEFE-8207/DeerRange_05102017.gdb")
+deerhab_layers <- st_layers(dsn = "/media/aketz/DEFE-8207/DeerRange_05102017.gdb")
+deerhab_layers
+deer_habitat <- sf::st_read("/media/aketz/DEFE-8207/DeerRange_05102017.gdb",layer = "WD_HYDRO_WATERBODY_AR_24K_CLIPWI")
+
+
+
+deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif")
+# deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/deer_habitat.tif")
+hab <- project(deer_habitat,"EPSG:3071")
+
+plot(hab)
+
+
 # deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
-deer_habitat_db <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
-deerhab_layers <- st_layers(dsn = "/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
-deer_habitat <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb",layer = "WD_HYDRO_WATERBODY_AR_24K_CLIPWI")
-plot(deer_habitat)
-names(deer_habitat)
-deer_hab <- st_as_stars(deer_habitat)
+# deer_habitat_db <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
+# deerhab_layers <- st_layers(dsn = "/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb")
+# deer_habitat <- sf::st_read("/home/aketz/Documents/Data/230523_harvest_data/DeerRange_05102017.gdb",layer = "WD_HYDRO_WATERBODY_AR_24K_CLIPWI")
+# plot(deer_habitat)
+# names(deer_habitat)
+# deer_hab <- st_as_stars(deer_habitat)
 
 
 # deer_habitat <- terra::rast("/home/aketz/Documents/Data/230523_harvest_data/finalgrid_2017.tif.ovr")
@@ -89,23 +104,48 @@ dev.off()
 ######################################################
 
 county <- terra::vect("~/Documents/Data/WI_SE_Shape_sections/county_bnds/county_bnds/county_bnds.shp")
+county <- sf::st_read("~/Documents/Data/WI_SE_Shape_sections/county_bnds/county_bnds/county_bnds.shp")
+
 county <- county[county$CTY_NAME %in% c("Dane","Iowa","Grant"),]
-county <- terra::project(county,"epsg:4326")
+grant <- county[county$CTY_NAME %in% c("Grant"),]
+iowa <- county[county$CTY_NAME %in% c("Iowa"),]
+dane <- county[county$CTY_NAME %in% c("Dane"),]
+# county <- terra::project(county,"epsg:4326")
 
-
+plot(dane)
 # county <- terra::project(county,"epsg:3071")
 
 ######################################################
 ### Loading study area section-based polygon shapefile 
 ######################################################
 
-study_df <- terra::vect("~/Documents/Data/Study_Area/study_df.shp")
-plot(study_df)
-study_df <- terra::project(study_df,"epsg:4326")
+# study_df <- terra::vect("~/Documents/Data/Study_Area/study_df.shp")
+# plot(study_df)
+# study_df <- terra::project(study_df,"epsg:4326")
 
-# study_df <- sf::st_read("~/Documents/Data/Study_Area/study_df.shp")
-# study_area_bound <- sf::st_union(study_df)
-# plot(study_area_bound)
+study_df <- sf::st_read("~/Documents/Data/Study_Area/study_df.shp")
+
+study_df_east_sect <- study_df[study_df$ew=="east",]
+study_df_west_sect <- study_df[study_df$ew=="west",]
+study_area_bound <- sf::st_union(study_df)
+study_east_bound <- sf::st_union(study_df_east_sect)
+study_west_bound <- sf::st_union(study_df_west_sect)
+
+st_
+
+
+plot(study_east_bound)
+
+plot(study_area_bound)
+grant_w_study <- st_intersection(grant,study_df)
+plot(study_df)
+plot(grant_w_study)
+
+iowa_w_study <- st_intersection(iowa,study_df[study_df$ew=="west",])
+iowa_e_study <- st_intersection(iowa,study_df[study_df$ew=="east",])
+
+plot(iowa_e_study)
+
 
 
 ######################################################
