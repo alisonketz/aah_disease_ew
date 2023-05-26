@@ -602,6 +602,17 @@ for(i in 1:n_year){
       pCage_ant_west[,i] <- Cage_ant_west[,i]/sum(Cage_ant_west[,i])
 }
 
+#### aggregating into single array
+Cage_less <- array(NA,c(n_study_area,dim(Cage_less_east)))
+Cage_less[1,,] <- Cage_less_east
+Cage_less[2,,] <- Cage_less_west
+
+Cage_ant <- array(NA,c(n_study_area,dim(Cage_ant_east)))
+Cage_ant[1,,] <- Cage_ant_east
+Cage_ant[2,,] <- Cage_ant_west
+
+sizeCage_f <- rbind(sizeCage_f_east, sizeCage_f_west)
+sizeCage_m <- rbind(sizeCage_m_east, sizeCage_m_west)
 
 
 #############################################
