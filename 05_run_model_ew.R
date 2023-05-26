@@ -19,49 +19,31 @@ modelcode <- nimbleCode({
     }
   }
   
-  
-  for (a in 1:n_agef) {
+  for(k in 1:n_study_area){
+    for (a in 1:n_agef) {
 
-    ### East
-    #Initial population structure pop[sex,age,year] for susceptible deer
-    llpop_sus[1, 1, a, 1] ~ dnorm(f_logpop_sus_east[a], tau_pop[1, 1])
-    pop_sus[1, 1, a, 1] <- exp(llpop_sus[1, 1, a, 1])
+      #Initial population structure pop[sex,age,year] for susceptible deer
+      llpop_sus[k, 1, a, 1] ~ dnorm(f_logpop_sus[k, a], tau_pop[k, 1])
+      pop_sus[k, 1, a, 1] <- exp(llpop_sus[k, 1, a, 1])
 
-    #Initial population structure pop[year=1,sex=i,age=a]
-    llpop_inf[1, 1, a, 1] ~ dnorm(f_logpop_inf_east[a], tau_pop[1, 2])
-    pop_inf[1, 1, a, 1] <- exp(llpop_inf[1, 1, a, 1])
-
-
-    ### West
-    #Initial population structure pop[sex,age,year] for susceptible deer
-    llpop_sus[2, 1, a, 1] ~ dnorm(f_logpop_sus_west[a], tau_pop[2, 1])
-    pop_sus[2, 1, a, 1] <- exp(llpop_sus[2, 1, a, 1])
-
-    #Initial population structure pop[year=1,sex=i,age=a]
-    llpop_inf[2, 1, a, 1] ~ dnorm(f_logpop_inf_west[a], tau_pop[2, 2])
-    pop_inf[2, 1, a, 1] <- exp(llpop_inf[1, a, 1])
-
-  }
+      #Initial population structure pop[study_area=k,sex=i,year=t,age=a]
+      llpop_inf[k, 1, a, 1] ~ dnorm(f_logpop_inf[k, a], tau_pop[k, 2])
+      pop_inf[k, 1, a, 1] <- exp(llpop_inf[k, 1, a, 1])
+    }
 
   for (a in 1:n_agem) {
 
-    ### East
-    #Initial population structure pop[year=1,sex=i,age=a] for susceptible deer
-    llpop_sus[1, 2, a, 1] ~ dnorm(m_logpop_sus_east[a], tau_pop[1, 1])
-    pop_sus[1, 2, a, 1] <- exp(llpop_sus[1, 2, a, 1])
+      ### East
+      #Initial population structure pop[year=1,sex=i,age=a] for susceptible deer
+      llpop_sus[k, 2, a, 1] ~ dnorm(m_logpop_sus[k, a], tau_pop[k, 1])
+      pop_sus[k, 2, a, 1] <- exp(llpop_sus[k, 2, a, 1])
 
-    #Initial population structure pop for infected deer
-    llpop_inf[1, 2, a, 1] ~ dnorm(m_logpop_inf_east[a], tau_pop[1, 2])
-    pop_inf[1, 2, a, 1] <- exp(llpop_inf[1, 2, a, 1])
+      #Initial population structure pop for infected deer
+      llpop_inf[k, 2, a, 1] ~ dnorm(m_logpop_inf[k, a], tau_pop[k, 2])
+      pop_inf[k, 2, a, 1] <- exp(llpop_inf[k, 2, a, 1])
 
-    ### West
-    #Initial population structure pop[year=1,sex=i,age=a] for susceptible deer
-    llpop_sus[2, 2, a, 1] ~ dnorm(m_logpop_sus_east[a], tau_pop[2, 1])
-    pop_sus[2, 2, a, 1] <- exp(llpop_sus[2, 2, a, 1])
-
-    #Initial population structure pop for infected deer
-    llpop_inf[2, 2, a, 1] ~ dnorm(m_logpop_inf_east[a], tau_pop[2, 2])
-    pop_inf[2, 2, a, 1] <- exp(llpop_inf[2, 2, a, 1])
+  }
+    
   }
 
   ############################
@@ -408,7 +390,7 @@ modelcode <- nimbleCode({
 
         #Male: project forward anually
         for (a in 1:(n_agem - 1)) {
-            pop_inf_proj[k, 2, a, t] <- pop_inf[k, 2, a, t - 1] * sn_inf[k, 2, a, t - 1] +
+            pop_inf_proj[k, 2, a, t] <- pop_inf[k, 2, a, t - 1] * sn_inf[2, a, t - 1] +
                                     pop_sus[k, 2, a, t - 1] * sn_sus[2, a, t - 1] * psi[k, 2, a, t - 1]
         }
 
@@ -514,20 +496,20 @@ modelcode <- nimbleCode({
 ### Data/Constants/Inits
 ###################################
 
-nimData <- list(Cage_less = Cage[,1,,],
-                Cage_ant = Cage[,2,,],
+nimData <- list(Cage_less = Cage_less,
+                Cage_ant = Cage_ant,
                 O = Ototal,
-                f_logpop_sus = f_logpop_sus_west,
-                f_logpop_inf = f_logpop_inf_west,
-                m_logpop_sus = m_logpop_sus_west,
-                m_logpop_inf = m_logpop_inf_west,
+                f_logpop_sus = f_logpop_sus,
+                f_logpop_inf = f_logpop_inf,
+                m_logpop_sus = m_logpop_sus,
+                m_logpop_inf = m_logpop_inf,
                 # obs_ct_fd_mu = obs_ct_fd_mu,
                 # obs_ct_fd_sd = obs_ct_fd_sd,
                 obs_ct_fd_alpha = obs_ct_fd_alpha,
                 obs_ct_fd_beta = obs_ct_fd_beta,
                 Nfawn = fawndoe_df$overall_fawn,
-                Ndoe = fawndoe_df$overall_doe,
-                x_eab = df_eab$EAB#,
+                Ndoe = fawndoe_df$overall_doe#,
+                # x_eab = df_eab$EAB#,
                 # cll_sn_sus = array(NA,c(2, n_agef, n_year)),
                 # cll_sn_inf = array(NA,c(2, n_agef, n_year)),
                 # cll_sh_sus = array(NA,c(2, n_agef, n_year)),
@@ -543,8 +525,9 @@ nimConsts <- list(
     n_ageclassf = n_ageclassf,
     n_ageclassm = n_ageclassm,
     n_sex = n_sex,
-    sizeCage_f = sizeCage_f_west+sizeCage_f_east,
-    sizeCage_m = sizeCage_m_west + sizeCage_m_east,
+    n_study_area = n_study_area,
+    sizeCage_f = sizeCage_f,
+    sizeCage_m = sizeCage_m,
     report_hyp_all = report_hyp_all,
     report_hyp_y = report_hyp_y,
     # psi = array(runif(2*n_agef*n_year, .001, .01),c(2, n_agef, n_year)),
@@ -593,7 +576,7 @@ nimConsts <- list(
 
 #Initial values
 initsFun <- function()list(
-  tau_obs = runif(2, 1, 3),
+  tau_obs = matrix(runif(4, 1, 3),2,2),
   # sn_sus = runif(1,.72, .78),
   # sn_inf = runif(1,.55,.65),
   # sh_inf = runif(1,.55,.65),
@@ -608,7 +591,7 @@ initsFun <- function()list(
   # tau_sh_inf = rgamma(1,4, 6),
   # pop_sus = pop_sus_init,
   # pop_inf = pop_inf_init,
-  tau_pop = runif(2, .5, 1),
+  tau_pop = matrix(runif(4, .5, 1),2,2),
   # llpop_sus = llpop_sus_init,
   # llpop_inf = llpop_inf_init,
   # tau_pop_inf = runif(1,.5,1),
