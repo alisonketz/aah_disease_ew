@@ -53,7 +53,7 @@ Cage_inf[1,,1,]
 Cage_inf[2,,2,]
 
 Cage <- Cage_sus
-Cage[,,,9:28] <- Cage[,,,9:28] + Cage_inf
+Cage[, , , 9:28] <- Cage[, , , 9:28] + Cage_inf
 
 #Aggregating the oldest age class for males into the next oldest age
 Cage[, 2, 6, ] <- Cage[, 2, 6, ] + Cage[, 2, 7,]
@@ -74,8 +74,14 @@ Ototal_east <- df_harv_overall_total[df_harv_overall_total$year > 1993 &
 Ototal_west <-  df_harv_overall_total[df_harv_overall_total$year > 1993 &
                                      df_harv_overall_total$study_area == "west",]
 
-Ototal <- Ototal_east
-Ototal[,3:4]  <- Ototal[,3:4] + Ototal_west[,3:4]
+# Ototal <- Ototal_east
+# Ototal[,3:4]  <- Ototal[,3:4] + Ototal_west[,3:4]
+
+
+
+Ototal <- array(NA,c(n_study_area,ncol(Ototal_west),nrow(Ototal_east)))
+Ototal[1,,] <- t(Ototal_east[,4:3])
+Ototal[2,,] <- t(Ototal_west[,4:3])
 
 ####################################################################################
 ### Loading and cleaning harvest compliance rate data

@@ -381,6 +381,18 @@ m_logpop_inf_west <- log(initN_inf[2, 2,1:n_agem])
 
 
 
+f_logpop_sus <- rbind(f_logpop_sus_east,
+                      f_logpop_sus_west)
+
+f_logpop_inf <- rbind(f_logpop_inf_east,
+                      f_logpop_inf_west)
+
+m_logpop_sus <- rbind(m_logpop_sus_east,
+                      m_logpop_sus_west)
+                      
+m_logpop_inf <- rbind(m_logpop_inf_east,
+                      m_logpop_inf_west)
+
 ### Total population initialized from 1993
 # initO <- df_harvest[df_harvest$year==1993,c(3,2)]
 # initN_sus <- array(0, dim = c(n_sex,n_agef))

@@ -295,59 +295,75 @@ calc_infect_prob <- nimbleFunction(
                  m_age = double(1),
                  f_period = double(1),
                  m_period = double(1),
-                 n_year = double(0)) {
+                 n_year = double(0),
+                 n_sex = double(0),
+                 n_study_area = double(0),
+                 space = double(0)) {
 
-    p <- nimArray(value = 0, c(2, Nage_lookup_f, n_year))
-    gam <- nimArray(value = 0, c(2, Nage_lookup_f, n_year))
-    p_inf <- nimArray(value = 0, c(2, n_agef, n_year))
+    p <- nimArray(value = 0, c(n_study_area, n_sex, Nage_lookup_f, n_year))
+    gam <- nimArray(value = 0, c(n_study_area, n_sex,Nage_lookup_f, n_year))
+    p_inf <- nimArray(value = 0, c(n_study_area, n_sex, n_agef, n_year))
+
+    for (t in 1:n_year) {
+        for (i in 1:Nage_lookup_f) {
+            gam[1, 1, i, t] <- f_age[age_lookup_f[i]] + f_period[t]
+            p[1, 1, i, t] <- exp(-sum(exp(gam[1, 1, 1:i, t])))
+            gam[2, 1, i, t] <- f_age[age_lookup_f[i]] + f_period[t] + space
+            p[2, 1, i, t] <- exp(-sum(exp(gam[1, 1, 1:i, t])))
+        }
+        for (i in 1:Nage_lookup_m) {
+            gam[1, 2, i, t] <- m_age[age_lookup_m[i]] + m_period[t]
+            p[1, 2, i, t] <- exp(-sum(exp(gam[1, 2, 1:i, t])))
+            gam[2, 2, i, t] <- m_age[age_lookup_m[i]] + m_period[t] + space
+            p[2, 2, i, t] <- exp(-sum(exp(gam[2, 2, 1:i, t])))
+        }
+    }
+
 
     for (t in 1:n_year) {
       for (i in 1:Nage_lookup_f) {
-        gam[1, i, t] <- f_age[age_lookup_f[i]] + f_period[t]
-        p[1, i, t] <- exp(-sum(exp(gam[1, 1:i, t])))
+        gam[1, 1, i, t] <- f_age[age_lookup_f[i]] + f_period[t]
+        p[1, 1, i, t] <- exp(-sum(exp(gam[1, 1, 1:i, t])))
+        gam[2, 1, i, t] <- f_age[age_lookup_f[i]] + f_period[t] + space
+        p[2, 1, i, t] <- exp(-sum(exp(gam[2, 1, 1:i, t])))
       }
       for (i in 1:Nage_lookup_m) {
-        gam[2, i, t] <- m_age[age_lookup_m[i]] + m_period[t]
-        p[2, i, t] <- exp(-sum(exp(gam[2, 1:i, t])))
+        gam[1, 2, i, t] <- m_age[age_lookup_m[i]] + m_period[t]
+        p[1, 2, i, t] <- exp(-sum(exp(gam[1, 2, 1:i, t])))
+        gam[2, 2, i, t] <- m_age[age_lookup_m[i]] + m_period[t] + space
+        p[2, 2, i, t] <- exp(-sum(exp(gam[2, 2, 1:i, t])))
       }
 
     }
-    #fawn probability of infection all years
-    #both sexes
-    for(t in 1:n_year){
-        p_inf[1, 1, t] <- 1 - p[1,yr_end[1],t]
-        p_inf[2, 1, t] <- 1 - p[2,yr_end[1],t]
-    }
-    #all non-fawn prob of infection first year
-    for (a in 2:n_agef) {
-        p_inf[1, a, 1] <- 1 - p[1,yr_end[a],1]
-    }
-    for (a in 2:n_agem) {
-        p_inf[2, a, 1] <- 1 - p[2,yr_end[a],1]
-    }
-#   inc_f_mn<-c(inc_f_mn,c(1-prob.infect[12,i,1],
-#             1-(prob.infect[24,i,1]/prob.infect[12,i,1]),# yearling female 2
-#             1-(prob.infect[36,i,1]/prob.infect[24,i,1]), ## 3
-#             1-(prob.infect[48,i,1]/prob.infect[36,i,1]),#4
-#             1-(prob.infect[72,i,1]/prob.infect[48,i,1]),#5
-#             1-(prob.infect[107,i,1]/prob.infect[72,i,1]),#9
-#             1-(prob.infect[108,i,1]/prob.infect[107,i,1])
-#             ))
 
-    #non-fawn infection probability all years except first year
-    for (t in 2:n_year) {
-      for (a in 2:n_agef) {
-        # p_inf[1, a, t] <- p[1,yr_end[a],t]/(1-p[1,yr_end[a-1],t-1])
-        p_inf[1, a, t] <- 1 - (p[1,yr_end[a],t]/p[1,yr_end[a-1],t])
-      }
-      for (a in 2:n_agem) {
-        # p_inf[2, a, t] <- p[2,yr_end[a],t]/(1-p[2,yr_end[a-1],t-1])
-        p_inf[2, a, t] <- 1 - (p[2,yr_end[a],t]/p[1,yr_end[a-1],t])
-      }
+    for(k in 1:n_study_area){
+        #fawn probability of infection all years
+        #both sexes
+        for(t in 1:n_year){
+            p_inf[k, 1, 1, t] <- 1 - p[k, 1, yr_end[1], t]
+            p_inf[k, 2, 1, t] <- 1 - p[k, 2, yr_end[1], t]
+        }
+        #all non-fawn prob of infection first year
+        for (a in 2:n_agef) {
+            p_inf[k, 1, a, 1] <- 1 - p[k, 1,yr_end[a],1]
+        }
+        for (a in 2:n_agem) {
+            p_inf[k, 2, a, 1] <- 1 - p[k, 2,yr_end[a],1]
+        }
+
+        #non-fawn infection probability all years except first year
+        for (t in 2:n_year) {
+            for (a in 2:n_agef) {
+                p_inf[k, 1, a, t] <- 1 - (p[k, 1,yr_end[a],t]/p[k, 1, yr_end[a-1], t])
+            }
+            for (a in 2:n_agem) {
+                p_inf[k, 2, a, t] <- 1 - (p[k, 2,yr_end[a],t]/p[k, 1, yr_end[a-1], t])
+            }
+        }
     }
 
-    returnType(double(3))
-    return(p_inf[1:2, 1:n_agef, 1:n_year])
+    returnType(double(4))
+    return(p_inf[1:n_study_area, 1:n_sex, 1:n_agef, 1:n_year])
   })
 
 Ccalc_infect_prob <- compileNimble(calc_infect_prob)
@@ -373,6 +389,11 @@ psi <- calc_infect_prob(age_lookup_f = age_lookup_f_conv,
                         m_age = m_age_foi-.5,
                         f_period = f_period_foi-.5,
                         m_period = m_period_foi-.5,
-                        n_year = n_year)
+                        n_year = n_year,
+                        n_sex = n_sex,
+                        n_study_area = n_study_area, 
+                        space = -.55
+                        )
+
 # (endtime5 <- Sys.time() - starttime)
-# psi[1,,]
+# psi[1,,,]
