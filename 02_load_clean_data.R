@@ -815,8 +815,8 @@ df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70ACWD",3:(ncol(df_harv_aah_dmu13)-1)]
 ###
 #####################################################################
 
-# iowa_e_correct_aah <- iowa_e_correct/(iowa_w_correct +iowa_e_correct)
-# iowa_w_correct_aah <- iowa_w_correct/(iowa_w_correct +iowa_e_correct)
+iowa_e_correct_aah <- iowa_e_correct/(iowa_w_correct +iowa_e_correct)
+iowa_w_correct_aah <- iowa_w_correct/(iowa_w_correct +iowa_e_correct)
 
 df_aah_county <-  data.frame(read_excel(paste0(filepath,"AgingDaneIowaGrant_2014-2021.xlsx"),1))
 names(df_aah_county) <- tolower(gsub("[[:punct:]]","",names(df_aah_county)))
@@ -834,17 +834,17 @@ df_aah_county <- rbind(df_aah_county,
       study_area=rep("west",sum(df_aah_county$cty == "Iowa")))
       )
 
-df_aah_county[df_aah_county$cty == "Dane" &
-    df_aah_county$study_area == "west",3:22]  <-
-    df_aah_county[df_aah_county$cty == "Dane" &
-    df_aah_county$study_area == "west",3:22] *
-    dane_e_correct
+# df_aah_county[df_aah_county$cty == "Dane" &
+#     df_aah_county$study_area == "west",3:22]  <-
+#     df_aah_county[df_aah_county$cty == "Dane" &
+#     df_aah_county$study_area == "west",3:22] *
+#     dane_e_correct
 
-df_aah_county[df_aah_county$cty == "Grant" &
-    df_aah_county$study_area == "west",3:22]  <-
-    df_aah_county[df_aah_county$cty == "Grant" &
-    df_aah_county$study_area == "west",3:22] *
-    grant_correct
+# df_aah_county[df_aah_county$cty == "Grant" &
+#     df_aah_county$study_area == "west",3:22]  <-
+#     df_aah_county[df_aah_county$cty == "Grant" &
+#     df_aah_county$study_area == "west",3:22] *
+#     grant_correct
 
 
 df_aah_county[df_aah_county$cty == "Iowa" &
@@ -1539,7 +1539,7 @@ df_aah_notest <- arrange(df_aah_notest,study_area,year,sex,age)
 ###################################################################
 
 df_age_early <- df_aah_notest[df_aah_notest$year > 1993 & df_aah_notest$year < 2002,]
-df_age_before <- df_aah_notest[df_aah_notest$year < 1994,]
+df_age_before <- df_aah_notest[df_aah_notest$year > 1983 & df_aah_notest$year < 1994,]
 
 
 ###################################################################
