@@ -710,24 +710,24 @@ df_harv_aah_dmu86$study_area[df_harv_aah_dmu86$dmu == "70C"]  <- "east"
 df_harv_aah_dmu86$study_area[df_harv_aah_dmu86$dmu == "70A"]  <- "east"
 
 df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="73",3:(ncol(df_harv_aah_dmu86)-1)] <- 
-    df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="73",3:(ncol(df_harv_aah_dmu86)-1)] *
-    dmu86_73_w_correct
+    round(df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="73",3:(ncol(df_harv_aah_dmu86)-1)] *
+    dmu86_73_w_correct)
 
 df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="73C",3:(ncol(df_harv_aah_dmu86)-1)] <- 
-    df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="73C",3:(ncol(df_harv_aah_dmu86)-1)] *
-    dmu86_73c_w_correct
+    round(df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="73C",3:(ncol(df_harv_aah_dmu86)-1)] *
+    dmu86_73c_w_correct)
 
 df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70D",3:(ncol(df_harv_aah_dmu86)-1)] <- 
-    df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70D",3:(ncol(df_harv_aah_dmu86)-1)] *
-    dmu86_70d_e_correct
+    round(df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70D",3:(ncol(df_harv_aah_dmu86)-1)] *
+    dmu86_70d_e_correct)
 
 df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70C",3:(ncol(df_harv_aah_dmu86)-1)] <- 
-    df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70C",3:(ncol(df_harv_aah_dmu86)-1)] *
-    dmu86_70c_e_correct
+    round(df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70C",3:(ncol(df_harv_aah_dmu86)-1)] *
+    dmu86_70c_e_correct)
 
 df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70A",3:(ncol(df_harv_aah_dmu86)-1)] <- 
-    df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70A",3:(ncol(df_harv_aah_dmu86)-1)] *
-    dmu86_70a_e_correct
+    round(df_harv_aah_dmu86[df_harv_aah_dmu86$dmu=="70A",3:(ncol(df_harv_aah_dmu86)-1)] *
+    dmu86_70a_e_correct)
 
 #####################################################################
 ###
@@ -750,20 +750,20 @@ df_harv_aah_dmu99$study_area[df_harv_aah_dmu99$dmu == "70C"]  <- "east"
 df_harv_aah_dmu99$study_area[df_harv_aah_dmu99$dmu == "70A"]  <- "east"
 
 df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="73C",3:(ncol(df_harv_aah_dmu99)-1)] <- 
-    df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="73C",3:(ncol(df_harv_aah_dmu99)-1)] *
-    dmu99_73e_w_correct
+    round(df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="73C",3:(ncol(df_harv_aah_dmu99)-1)] *
+    dmu99_73e_w_correct)
 
 df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70D",3:(ncol(df_harv_aah_dmu99)-1)] <- 
-    df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70D",3:(ncol(df_harv_aah_dmu99)-1)] *
-    dmu99_70d_e_correct
+    round(df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70D",3:(ncol(df_harv_aah_dmu99)-1)] *
+    dmu99_70d_e_correct)
 
 df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70C",3:(ncol(df_harv_aah_dmu99)-1)] <- 
-    df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70C",3:(ncol(df_harv_aah_dmu99)-1)] *
-    dmu99_70c_e_correct
+    round(df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70C",3:(ncol(df_harv_aah_dmu99)-1)] *
+    dmu99_70c_e_correct)
 
 df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70A",3:(ncol(df_harv_aah_dmu99)-1)] <- 
-    df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70A",3:(ncol(df_harv_aah_dmu99)-1)] *
-    dmu99_70a_e_correct
+    round(df_harv_aah_dmu99[df_harv_aah_dmu99$dmu=="70A",3:(ncol(df_harv_aah_dmu99)-1)] *
+    dmu99_70a_e_correct)
 
 
 #####################################################################
@@ -787,20 +787,20 @@ df_harv_aah_dmu13$study_area[df_harv_aah_dmu13$dmu == "70CCWD"]  <- "east"
 df_harv_aah_dmu13$study_area[df_harv_aah_dmu13$dmu == "70ACWD"]  <- "east"
 
 df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="73CCWD",3:(ncol(df_harv_aah_dmu13)-1)] <- 
-    df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="73CCWD",3:(ncol(df_harv_aah_dmu13)-1)] *
-    dmu13_73e_w_correct
+    round(df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="73CCWD",3:(ncol(df_harv_aah_dmu13)-1)] *
+    dmu13_73e_w_correct)
 
 df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70DCWD",3:(ncol(df_harv_aah_dmu13)-1)] <- 
-    df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70DCWD",3:(ncol(df_harv_aah_dmu13)-1)] *
-    dmu13_70d_e_correct
+    round(df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70DCWD",3:(ncol(df_harv_aah_dmu13)-1)] *
+    dmu13_70d_e_correct)
 
 df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70CCWD",3:(ncol(df_harv_aah_dmu13)-1)] <- 
-    df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70CCWD",3:(ncol(df_harv_aah_dmu13)-1)] *
-    dmu13_70c_e_correct
+    round(df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70CCWD",3:(ncol(df_harv_aah_dmu13)-1)] *
+    dmu13_70c_e_correct)
 
 df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70ACWD",3:(ncol(df_harv_aah_dmu13)-1)] <- 
-    df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70ACWD",3:(ncol(df_harv_aah_dmu13)-1)] *
-    dmu13_70a_e_correct
+    round(df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70ACWD",3:(ncol(df_harv_aah_dmu13)-1)] *
+    dmu13_70a_e_correct)
 
 
 
@@ -849,15 +849,15 @@ df_aah_county <- rbind(df_aah_county,
 
 df_aah_county[df_aah_county$cty == "Iowa" &
     df_aah_county$study_area == "west",3:22]  <-
-    df_aah_county[df_aah_county$cty == "Iowa" &
+    round(df_aah_county[df_aah_county$cty == "Iowa" &
     df_aah_county$study_area == "west",3:22] *
-    iowa_w_correct
+    iowa_w_correct)
 
 df_aah_county[df_aah_county$cty == "Iowa" &
     df_aah_county$study_area == "east",3:22]  <-
-    df_aah_county[df_aah_county$cty == "Iowa" &
+    round(df_aah_county[df_aah_county$cty == "Iowa" &
     df_aah_county$study_area == "east",3:22] *
-    iowa_e_correct
+    iowa_e_correct)
 
 ###################################################################################
 ###

@@ -12,32 +12,56 @@ modelcode <- nimbleCode({
   ### of using the first year of data
   ########################################
 
-  #should this be different for pos/neg or m/f ?
-  for(i in 1:2){
-    tau_pop[i] ~ dgamma(1,1)
-
+  #should this be different for pos/neg or m/f for study area?
+  for(j in 1:n_study_area){
+    for(i in 1:2){
+      tau_pop[j,i] ~ dgamma(1,1)
+    }
   }
-  # tau_pop_sus ~ dgamma(1,1)
-  # tau_pop_inf ~ dgamma(1,1)
-
+  
+  
   for (a in 1:n_agef) {
+
+    ### East
     #Initial population structure pop[sex,age,year] for susceptible deer
-    llpop_sus[1, a, 1] ~ dnorm(f_logpop_sus[a], tau_pop[1])
-    pop_sus[1, a, 1] <- exp(llpop_sus[1, a, 1])
+    llpop_sus[1, 1, a, 1] ~ dnorm(f_logpop_sus_east[a], tau_pop[1, 1])
+    pop_sus[1, 1, a, 1] <- exp(llpop_sus[1, 1, a, 1])
 
     #Initial population structure pop[year=1,sex=i,age=a]
-    llpop_inf[1, a, 1] ~ dnorm(f_logpop_inf[a], tau_pop[2])
-    pop_inf[1, a, 1] <- exp(llpop_inf[1, a, 1])
+    llpop_inf[1, 1, a, 1] ~ dnorm(f_logpop_inf_east[a], tau_pop[1, 2])
+    pop_inf[1, 1, a, 1] <- exp(llpop_inf[1, 1, a, 1])
+
+
+    ### West
+    #Initial population structure pop[sex,age,year] for susceptible deer
+    llpop_sus[2, 1, a, 1] ~ dnorm(f_logpop_sus_west[a], tau_pop[2, 1])
+    pop_sus[2, 1, a, 1] <- exp(llpop_sus[2, 1, a, 1])
+
+    #Initial population structure pop[year=1,sex=i,age=a]
+    llpop_inf[2, 1, a, 1] ~ dnorm(f_logpop_inf_west[a], tau_pop[2, 2])
+    pop_inf[2, 1, a, 1] <- exp(llpop_inf[1, a, 1])
+
   }
 
   for (a in 1:n_agem) {
+
+    ### East
     #Initial population structure pop[year=1,sex=i,age=a] for susceptible deer
-    llpop_sus[2, a, 1] ~ dnorm(m_logpop_sus[a], tau_pop[1])
-    pop_sus[2, a, 1] <- exp(llpop_sus[2, a, 1])
+    llpop_sus[1, 2, a, 1] ~ dnorm(m_logpop_sus_east[a], tau_pop[1, 1])
+    pop_sus[1, 2, a, 1] <- exp(llpop_sus[1, 2, a, 1])
 
     #Initial population structure pop for infected deer
-    llpop_inf[2, a, 1] ~ dnorm(m_logpop_inf[a], tau_pop[2])
-    pop_inf[2, a, 1] <- exp(llpop_inf[2, a, 1])
+    llpop_inf[1, 2, a, 1] ~ dnorm(m_logpop_inf_east[a], tau_pop[1, 2])
+    pop_inf[1, 2, a, 1] <- exp(llpop_inf[1, 2, a, 1])
+
+    ### West
+    #Initial population structure pop[year=1,sex=i,age=a] for susceptible deer
+    llpop_sus[2, 2, a, 1] ~ dnorm(m_logpop_sus_east[a], tau_pop[2, 1])
+    pop_sus[2, 2, a, 1] <- exp(llpop_sus[2, 2, a, 1])
+
+    #Initial population structure pop for infected deer
+    llpop_inf[2, 2, a, 1] ~ dnorm(m_logpop_inf_east[a], tau_pop[2, 2])
+    pop_inf[2, 2, a, 1] <- exp(llpop_inf[2, 2, a, 1])
   }
 
   ############################
@@ -167,7 +191,7 @@ modelcode <- nimbleCode({
   #### Overall Survival Susceptibles
   ###################################################
 
-  sn_sus[1:2,1:n_agef,1:n_year] <- calc_surv_aah(
+  sn_sus[1:n_sex,1:n_agef,1:n_year] <- calc_surv_aah(
           nT_age = nT_age_surv,
           nT_period = nT_period_surv,
           beta0 = sus_beta0_survival,
@@ -185,7 +209,7 @@ modelcode <- nimbleCode({
   #### Overall Survival CWD Infected
   ###################################################
 
-  sn_inf[1:2,1:n_agef,1:n_year] <- calc_surv_aah(
+  sn_inf[1:n_sex,1:n_agef,1:n_year] <- calc_surv_aah(
           nT_age = nT_age_surv,
           nT_period = nT_period_surv,
           beta0 = inf_beta0_survival,
@@ -203,7 +227,7 @@ modelcode <- nimbleCode({
   #### Hunting Survival Susceptibles
   ###################################################
 
-  sh_sus[1:2,1:n_agef,1:n_year] <- calc_surv_harvest(
+  sh_sus[1:n_sex,1:n_agef,1:n_year] <- calc_surv_harvest(
           nT_age = nT_age_surv, 
           nT_period = nT_period_surv,
           beta0 = sus_beta0_survival,
@@ -230,7 +254,7 @@ modelcode <- nimbleCode({
   #### Hunting Survival Infected
   ###################################################
 
-  sh_inf[1:2,1:n_agef,1:n_year] <- calc_surv_harvest(
+  sh_inf[1:n_sex,1:n_agef,1:n_year] <- calc_surv_harvest(
           nT_age = nT_age_surv,
           nT_period = nT_period_surv,
           beta0 = inf_beta0_survival,
@@ -258,7 +282,7 @@ modelcode <- nimbleCode({
   #### Probability of Infection based on FOI hazards
   ###################################################
 
-  psi[1:2, 1:n_agef, 1:n_year] <- calc_infect_prob(
+  psi[1:n_study_area, 1:n_sex, 1:n_agef, 1:n_year] <- calc_infect_prob(
                         age_lookup_f = age_lookup_f_conv[1:Nage_lookup_f],
                         age_lookup_m = age_lookup_m_conv[1:Nage_lookup_m],
                         Nage_lookup_f = Nage_lookup_f,
@@ -270,7 +294,11 @@ modelcode <- nimbleCode({
                         m_age = m_age_foi[1:n_ageclassm],
                         f_period = f_period_foi[1:n_year],
                         m_period = m_period_foi[1:n_year],
-                        n_year = n_year)
+                        n_year = n_year,
+                        n_sex = n_sex,
+                        n_study_area = n_study_area, 
+                        space = space_foi
+                        )
 
 
   ###################################################
@@ -293,142 +321,147 @@ modelcode <- nimbleCode({
   ###
   ######################################################################
 
-    ##################
-    ### Susceptible
-    ##################
+    for (k in 1:n_study_area){
 
-    for (t in 2:n_year) {
-    ###########
-    # Females
-    ###########
-    #Female: project forward anually
-    for (a in 1:(n_agef - 1)) {
-      pop_sus_proj[1, a, t] <- pop_sus[1, a, t - 1] * sn_sus[1, a, t - 1] * (1 - psi[1, a, t - 1])
-    }
+      ##################
+      ### Susceptible
+      ##################
 
-    #female max age class
-    pop_sus_proj[1, n_agef, t] <- pop_sus_proj[1,(n_agef - 1), t] +
-                                  pop_sus[1,  n_agef, t - 1] * sn_sus[1, n_agef,t - 1] * (1 - psi[1, n_agef, t - 1])
+      for (t in 2:n_year) {
+        ###########
+        # Females
+        ###########
+        #Female: project forward anually
+        for (a in 1:(n_agef - 1)) {
+          pop_sus_proj[k, 1, a, t] <- pop_sus[k, 1, a, t - 1] * sn_sus[1, a, t - 1] * (1 - psi[k, 1, a, t - 1])
+        }
 
-    #Female: set projection into population model matrix
-    for (a in 2:n_agef) {
-      pop_sus[1, a, t] <- pop_sus_proj[1, (a - 1), t]
-    }
+        #female max age class
+        pop_sus_proj[k, 1, n_agef, t] <- pop_sus_proj[k, 1,(n_agef - 1), t] +
+                                      pop_sus[k, 1,  n_agef, t - 1] * sn_sus[1, n_agef,t - 1] * (1 - psi[k, 1, n_agef, t - 1])
 
-    #Male: fawn class = total #females * unisex fawns per female/2
-    #(should this be divided by 2?)
-    pop_sus[1, 1, t] <- (sum(pop_sus_proj[1, 1:n_agef, t]) +
-                         sum(pop_inf_proj[1, 1:n_agef, t])) * fec[t] * (1 - psi[2, 1, t]) / 2 
-    ###########
-    # Males
-    ###########
+        #Female: set projection into population model matrix
+        for (a in 2:n_agef) {
+          pop_sus[k, 1, a, t] <- pop_sus_proj[k, 1, (a - 1), t]
+        }
 
-    #Male: project forward anually
-    for (a in 1:(n_agem - 1)) {
-      pop_sus_proj[2, a, t] <- pop_sus[2, a, t - 1] * sn_sus[2, a, t - 1] * (1 - psi[2, a, t - 1])
-    }
-    
-    #Male: max age class
-    pop_sus_proj[2, n_agem, t] <- pop_sus_proj[2, (n_agem - 1), t] +
-                                  pop_sus[2, n_agem, t - 1] * sn_sus[2, n_agem, t - 1] * (1 - psi[2, n_agem, t - 1])
+        #Male: fawn class = total #females * unisex fawns per female/2
+        #(should this be divided by 2?)
+        pop_sus[k, 1, 1, t] <- (sum(pop_sus_proj[k, 1, 1:n_agef, t]) +
+                            sum(pop_inf_proj[k, 1, 1:n_agef, t])) * fec[t] * (1 - psi[k, 2, 1, t]) / 2 
+        ###########
+        # Males
+        ###########
+
+        #Male: project forward anually
+        for (a in 1:(n_agem - 1)) {
+          pop_sus_proj[k, 2, a, t] <- pop_sus[k, 2, a, t - 1] * sn_sus[2, a, t - 1] * (1 - psi[k, 2, a, t - 1])
+        }
+        
+        #Male: max age class
+        pop_sus_proj[k, 2, n_agem, t] <- pop_sus_proj[k, 2, (n_agem - 1), t] +
+                                      pop_sus[k, 2, n_agem, t - 1] * sn_sus[2, n_agem, t - 1] * (1 - psi[k, 2, n_agem, t - 1])
 
 
-    #Male: set projection into population model matrix
-    for (a in 2:n_agem) {
-      pop_sus[2, a, t] <- pop_sus_proj[2, (a - 1), t]
-    }
+        #Male: set projection into population model matrix
+        for (a in 2:n_agem) {
+          pop_sus[k, 2, a, t] <- pop_sus_proj[k, 2, (a - 1), t]
+        }
 
-    # Male: fawn class = total #females * unisex fawns per female/2
-    # (should this be divided by 2?)
-    pop_sus[2, 1, t] <- (sum(pop_sus_proj[1, 1:n_agef, t]) +
-                        sum(pop_inf_proj[1, 1:n_agef, t])) * fec[t] * (1 - psi[2, 1, t]) / 2 
+        # Male: fawn class = total #females * unisex fawns per female/2
+        # (should this be divided by 2?)
+        pop_sus[k, 2, 1, t] <- (sum(pop_sus_proj[k, 1, 1:n_agef, t]) +
+                            sum(pop_inf_proj[k, 1, 1:n_agef, t])) * fec[t] * (1 - psi[k, 2, 1, t]) / 2 
 
-    ###################################################
-    ### Infected/Infectious
-    ###################################################
+        ###################################################
+        ### Infected/Infectious
+        ###################################################
 
-    ###########
-    # Females
-    ###########
+        ###########
+        # Females
+        ###########
 
-    #Female: project forward anually
-    for (a in 1:(n_agef - 1)) {
-      pop_inf_proj[1, a, t] <- pop_inf[1, a, t - 1] * sn_inf[1, a, t - 1] +
-                               pop_sus[1, a, t - 1] * sn_sus[1, a, t - 1] * psi[1, a, t - 1]
-    }
-    #Female: max age = 9.5+ years
-    pop_inf_proj[1, n_agef, t] <- pop_inf_proj[1, (n_agef - 1), t] +
-                                  pop_inf[1, n_agef, t - 1] * sn_inf[1, n_agef, t - 1] +
-                                  # pop_sus_proj[1, (n_agef - 1), t] * psi[1, (n_agef - 1), t] + #need to double check this
-                                  pop_sus[1, n_agef, t - 1] * sn_sus[1, n_agef, t - 1] * psi[1, n_agef, t - 1]
+        #Female: project forward anually
+        for (a in 1:(n_agef - 1)) {
+          pop_inf_proj[k, 1, a, t] <- pop_inf[k, 1, a, t - 1] * sn_inf[1, a, t - 1] +
+                                  pop_sus[k, 1, a, t - 1] * sn_sus[1, a, t - 1] * psi[k, 1, a, t - 1]
+        }
+        #Female: max age = 9.5+ years
+        pop_inf_proj[k, 1, n_agef, t] <- pop_inf_proj[k, 1, (n_agef - 1), t] +
+                                      pop_inf[k, 1, n_agef, t - 1] * sn_inf[1, n_agef, t - 1] +
+                                      # pop_sus_proj[1, (n_agef - 1), t] * psi[1, (n_agef - 1), t] + #need to double check this
+                                      pop_sus[k, 1, n_agef, t - 1] * sn_sus[1, n_agef, t - 1] * psi[k, 1, n_agef, t - 1]
 
-    #Female: set projection into population model matrix
-    for (a in 2:n_agef) {
-      pop_inf[1, a, t] <- pop_inf_proj[1, (a - 1), t]
-    }
-    
-    #Female: fawn class = total #females * unisex fawns per female/2
-    #(should this be divided by 2?)
-    pop_inf[1, 1, t] <- (sum(pop_sus_proj[1, 1:n_agef, t]) +
-                         sum(pop_inf_proj[1, 1:n_agef, t])) * fec[t] * psi[1, 1, t] / 2
+        #Female: set projection into population model matrix
+        for (a in 2:n_agef) {
+          pop_inf[k, 1, a, t] <- pop_inf_proj[k, 1, (a - 1), t]
+        }
+        
+        #Female: fawn class = total #females * unisex fawns per female/2
+        #(should this be divided by 2?)
+        pop_inf[k, 1, 1, t] <- (sum(pop_sus_proj[k, 1, 1:n_agef, t]) +
+                            sum(pop_inf_proj[k, 1, 1:n_agef, t])) * fec[t] * psi[k, 1, 1, t] / 2
 
-    ###########
-    # Males
-    ###########
+        ###########
+        # Males
+        ###########
 
-    #Male: project forward anually
-    for (a in 1:(n_agem - 1)) {
-        pop_inf_proj[2, a, t] <- pop_inf[2, a, t - 1] * sn_inf[2, a, t - 1] +
-                                 pop_sus[2, a, t - 1] * sn_sus[2, a, t - 1] * psi[2, a, t - 1]
-    }
+        #Male: project forward anually
+        for (a in 1:(n_agem - 1)) {
+            pop_inf_proj[k, 2, a, t] <- pop_inf[k, 2, a, t - 1] * sn_inf[k, 2, a, t - 1] +
+                                    pop_sus[k, 2, a, t - 1] * sn_sus[2, a, t - 1] * psi[k, 2, a, t - 1]
+        }
 
-    #Male: max age class
-    pop_inf_proj[2, n_agem, t] <- pop_inf_proj[2, (n_agem - 1), t] +
-                                      pop_inf[2, n_agem, t - 1] * sn_inf[2, n_agem, t - 1] +
-                                      # pop_sus_proj[2, (n_agem - 1), t] * psi +#need to double check this
-                                      pop_sus[2, n_agem, t - 1] *  sn_sus[2, n_agem, t - 1] * psi[2, n_agem, t - 1]
+        #Male: max age class
+        pop_inf_proj[k, 2, n_agem, t] <- pop_inf_proj[k, 2, (n_agem - 1), t] +
+                                          pop_inf[k, 2, n_agem, t - 1] * sn_inf[2, n_agem, t - 1] +
+                                          # pop_sus_proj[2, (n_agem - 1), t] * psi +#need to double check this
+                                          pop_sus[k, 2, n_agem, t - 1] *  sn_sus[2, n_agem, t - 1] * psi[k, 2, n_agem, t - 1]
 
-    #Male: set projection into population model matrix
-    for (a in 2:n_agem) {
-      pop_inf[2, a, t] <- pop_inf_proj[2, (a - 1), t]
-    }
+        #Male: set projection into population model matrix
+        for (a in 2:n_agem) {
+          pop_inf[k, 2, a, t] <- pop_inf_proj[k, 2, (a - 1), t]
+        }
 
-    #Male: fawn class = total #females * unisex fawns per female/2#(should this be divided by 2?)
-    pop_inf[2, 1, t] <- (sum(pop_sus_proj[1, 1:n_agef, t]) +
-                         sum(pop_inf_proj[1, 1:n_agef, t])) * fec[t] * psi[2, 1, t] / 2
+        #Male: fawn class = total #females * unisex fawns per female/2#(should this be divided by 2?)
+        pop_inf[k, 2, 1, t] <- (sum(pop_sus_proj[k, 1, 1:n_agef, t]) +
+                            sum(pop_inf_proj[k, 1, 1:n_agef, t])) * fec[t] * psi[k, 2, 1, t] / 2
 
-  }#end t
-  
+    }#end t
+    }#end study_area
+
   ######################################################################
   ### Observation Model
   ######################################################################
 
-  for (i in 1:n_sex) {
-    # tau_obs[t, i] <- 1 / mu_obs[t, i]
-    tau_obs[i] ~ dgamma(1, 1)
-  }#end i
+  for(k in 1:n_study_area){
+
+    for (i in 1:n_sex) {
+      tau_obs[k, i] ~ dgamma(1, 1)
+    }#end i
+
 
   for (t in 1:n_year) {
     for (a in 1:n_agef) {
-      harv_pop[1, a, t] <- (pop_inf[1, a, t] * (1 - sh_inf[1, a, t]) + pop_sus[1, a, t] * (1 - sh_sus[1, a, t])) * report[t]
+      harv_pop[k, 1, a, t] <- (pop_inf[k, 1, a, t] * (1 - sh_inf[1, a, t]) + pop_sus[k, 1, a, t] * (1 - sh_sus[1, a, t])) * report[t]
     }
     for (a in 1:n_agem) {
-      harv_pop[2, a, t] <- (pop_inf[2, a, t] * (1 - sh_inf[2, a, t]) + pop_sus[2, a, t] * (1 - sh_sus[2, a, t])) * report[t]
+      harv_pop[k, 2, a, t] <- (pop_inf[k, 2, a, t] * (1 - sh_inf[2, a, t]) + pop_sus[k, 2, a, t] * (1 - sh_sus[2, a, t])) * report[t]
     }
 
     #Total Antlerless Harvest
     #adding in male fawns
-    mu_obs[1, t] <- (sum(harv_pop[1, 1:n_agef, t]) + harv_pop[2, 1, t]) # eab_antlerless[t] * 
+    mu_obs[k, 1, t] <- (sum(harv_pop[k, 1, 1:n_agef, t]) + harv_pop[k, 2, 1, t]) # eab_antlerless[t] * 
 
     #Total Antlered Harvest
-    mu_obs[2, t] <- sum(harv_pop[2, 2:n_agem, t])#excludes male fawns eab_antlered[t] * 
+    mu_obs[k, 2, t] <- sum(harv_pop[k, 2, 2:n_agem, t])#excludes male fawns eab_antlered[t] * 
 
     ###################################
     #Likelihood for overall total
     ###################################
     
     for (j in 1:n_sex) {
-      O[j, t] ~ dnorm(mu_obs[j, t], tau_obs[j])
+      O[k, j, t] ~ dnorm(mu_obs[k, j, t], tau_obs[k, j])
     }#end i
 
     ###################################
@@ -436,33 +469,36 @@ modelcode <- nimbleCode({
     ###################################
 
     ###parameters for likelihood harvest data by antlerless group
-    p_less[1, t] <- harv_pop[1, 1, t] / mu_obs[1, t]#proportion female fawns
-    p_less[2, t] <- harv_pop[1, 2, t] / mu_obs[1, t]#1
-    p_less[3, t] <- harv_pop[1, 3, t] / mu_obs[1, t]#2
-    p_less[4, t] <- harv_pop[1, 4, t] / mu_obs[1, t]#3
-    p_less[5, t] <- sum(harv_pop[1, 5:6, t]) / mu_obs[1, t]#4-5
-    p_less[6, t] <- sum(harv_pop[1, 7:9, t]) / mu_obs[1, t]#6-8
-    p_less[7, t] <- harv_pop[1, 10, t] / mu_obs[1, t]#9+
-    p_less[8, t] <- 1 - sum(p_less[1:7,t])#proportion male fawns, antlerless
+    p_less[k, 1, t] <- harv_pop[k, 1, 1, t] / mu_obs[k, 1, t]#proportion female fawns
+    p_less[k, 2, t] <- harv_pop[k, 1, 2, t] / mu_obs[k, 1, t]#1
+    p_less[k, 3, t] <- harv_pop[k, 1, 3, t] / mu_obs[k, 1, t]#2
+    p_less[k, 4, t] <- harv_pop[k, 1, 4, t] / mu_obs[k, 1, t]#3
+    p_less[k, 5, t] <- sum(harv_pop[k, 1, 5:6, t]) / mu_obs[k, 1, t]#4-5
+    p_less[k, 6, t] <- sum(harv_pop[k, 1, 7:9, t]) / mu_obs[k, 1, t]#6-8
+    p_less[k, 7, t] <- harv_pop[k, 1, 10, t] / mu_obs[k, 1, t]#9+
+    p_less[k, 8, t] <- 1 - sum(p_less[k, 1:7, t])#proportion male fawns, antlerless
 
     #harvest data bt antlered group
-    ### p_ant[t, 1] <- harv_pop[t, 2, 1] / (mu_obs[t, 2])#male fawns 
-    p_ant[1, t] <- harv_pop[2, 2, t] / mu_obs[2, t]#1
-    p_ant[2, t] <- harv_pop[2, 3, t] / mu_obs[2, t]#2
-    p_ant[3, t] <- harv_pop[2, 4, t] / mu_obs[2, t]#3
-    p_ant[4, t] <- sum(harv_pop[2, 5:6, t]) / mu_obs[2, t]#4-5
-    p_ant[5, t] <- 1 - sum(p_ant[1:4, t]) #6+
+    p_ant[k, 1, t] <- harv_pop[k, 2, 2, t] / mu_obs[k, 2, t]#1
+    p_ant[k, 2, t] <- harv_pop[k, 2, 3, t] / mu_obs[k, 2, t]#2
+    p_ant[k, 3, t] <- harv_pop[k, 2, 4, t] / mu_obs[k, 2, t]#3
+    p_ant[k, 4, t] <- sum(harv_pop[k, 2, 5:6, t]) / mu_obs[k, 2, t]#4-5
+    p_ant[k, 5, t] <- 1 - sum(p_ant[k, 1:4, t]) #6+
 
   }# end t
 
   for(t in 1:n_year){
 
     #antlerless, male fawns
-    Cage_less[1:(n_ageclassf + 1),t] ~ dmulti(prob = p_less[1:(n_ageclassf + 1),t], size = sizeCage_f[t])
+    Cage_less[k, 1:(n_ageclassf + 1),t] ~ dmulti(prob = p_less[k, 1:(n_ageclassf + 1),t], size = sizeCage_f[k, t])
  
     #antlered
-    Cage_ant[1:(n_ageclassm - 1),t] ~ dmulti(prob = p_ant[ 1:(n_ageclassm - 1),t], size = sizeCage_m[t])
+    Cage_ant[k, 1:(n_ageclassm - 1),t] ~ dmulti(prob = p_ant[k, 1:(n_ageclassm - 1),t], size = sizeCage_m[k, t])
   }
+
+
+  }
+
 
 })#end model statement
 
@@ -478,9 +514,9 @@ modelcode <- nimbleCode({
 ### Data/Constants/Inits
 ###################################
 
-nimData <- list(Cage_less = Cage_less_west + Cage_less_east,
-                Cage_ant = Cage_ant_west + Cage_ant_east,
-                O = t(Ototal_west[,4:3]),
+nimData <- list(Cage_less = Cage[,1,,],
+                Cage_ant = Cage[,2,,],
+                O = Ototal,
                 f_logpop_sus = f_logpop_sus_west,
                 f_logpop_inf = f_logpop_inf_west,
                 m_logpop_sus = m_logpop_sus_west,
@@ -501,6 +537,7 @@ nimData <- list(Cage_less = Cage_less_west + Cage_less_east,
 #Constants
 nimConsts <- list(
     n_year = n_year,
+    n_sex = n_sex,
     n_agef = n_agef,
     n_agem = n_agem,
     n_ageclassf = n_ageclassf,
@@ -550,7 +587,8 @@ nimConsts <- list(
     # eab_antlerless_temp = 1,
     # eab_antlered_alpha = eab_antlered_alpha,
     # eab_antlered_beta = eab_antlered_beta,
-    intvl_step_yr = intvl_step_yr
+    intvl_step_yr = intvl_step_yr,
+    space_foi = -.55
 )
 
 #Initial values
