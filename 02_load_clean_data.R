@@ -30,7 +30,7 @@ df_harv_total_county[is.na(df_harv_total_county)] <- 0
 
 #summing of landtype, which are just public/private land harvest
 df_harv_total_county <- as.data.frame(df_harv_total_county %>% group_by(yr,cty) %>%
-    summarize(antleredgun = sum(antleredgun),
+    summarise(antleredgun = sum(antleredgun),
     antlerlessgun = sum(antlerlessgun),
     antleredbow = sum(antleredbow),
     antlerlessbow = sum(antlerlessbow),
@@ -815,8 +815,8 @@ df_harv_aah_dmu13[df_harv_aah_dmu13$dmu=="70ACWD",3:(ncol(df_harv_aah_dmu13)-1)]
 ###
 #####################################################################
 
-iowa_e_correct_aah <- iowa_e_correct/(iowa_w_correct +iowa_e_correct)
-iowa_w_correct_aah <- iowa_w_correct/(iowa_w_correct +iowa_e_correct)
+# iowa_e_correct_aah <- iowa_e_correct/(iowa_w_correct +iowa_e_correct)
+# iowa_w_correct_aah <- iowa_w_correct/(iowa_w_correct +iowa_e_correct)
 
 df_aah_county <-  data.frame(read_excel(paste0(filepath,"AgingDaneIowaGrant_2014-2021.xlsx"),1))
 names(df_aah_county) <- tolower(gsub("[[:punct:]]","",names(df_aah_county)))
@@ -834,17 +834,30 @@ df_aah_county <- rbind(df_aah_county,
       study_area=rep("west",sum(df_aah_county$cty == "Iowa")))
       )
 
+df_aah_county[df_aah_county$cty == "Dane" &
+    df_aah_county$study_area == "west",3:22]  <-
+    df_aah_county[df_aah_county$cty == "Dane" &
+    df_aah_county$study_area == "west",3:22] *
+    dane_e_correct
+
+df_aah_county[df_aah_county$cty == "Grant" &
+    df_aah_county$study_area == "west",3:22]  <-
+    df_aah_county[df_aah_county$cty == "Grant" &
+    df_aah_county$study_area == "west",3:22] *
+    grant_correct
+
+
 df_aah_county[df_aah_county$cty == "Iowa" &
     df_aah_county$study_area == "west",3:22]  <-
     df_aah_county[df_aah_county$cty == "Iowa" &
     df_aah_county$study_area == "west",3:22] *
-    iowa_w_correct_aah
+    iowa_w_correct
 
 df_aah_county[df_aah_county$cty == "Iowa" &
     df_aah_county$study_area == "east",3:22]  <-
     df_aah_county[df_aah_county$cty == "Iowa" &
     df_aah_county$study_area == "east",3:22] *
-    iowa_e_correct_aah
+    iowa_e_correct
 
 ###################################################################################
 ###
@@ -925,7 +938,7 @@ df_aah_notest <- rbind(df_aah_dmu_notest, df_aah_county_notest)
 ###################################################################################
 
 
-df_aah_notest <- df_aah_notest %>% pivot_longer(cols=-c(yr,study_area))
+df_aah_notest <- df_aah_notest %>% pivot_longer(cols = -c(yr,study_area))
 names(df_aah_notest) <- c("study_area","year","age","n")
 df_aah_notest$sex <- as.factor(substr(df_aah_notest$age,1,1))
 levels(df_aah_notest$sex) <- c("Female","Male")
@@ -1333,16 +1346,16 @@ fixp6f <- length(which(!(2002:2021 %in% df_age_inf$year[df_age_inf$study_area ==
 fixp4f <- length(which(!(2002:2021 %in% df_age_inf$year[df_age_inf$study_area == "west" &
                                                         df_age_inf$sex == "Female" &
                                                         df_age_inf$age == 4])))
-fixp4f <- length(which(!(2002:2021 %in% df_age_inf$year[df_age_inf$study_area == "west" &
-                                                        df_age_inf$sex == "Female" &
-                                                        df_age_inf$age == 3])))
 fixp3f <- length(which(!(2002:2021 %in% df_age_inf$year[df_age_inf$study_area == "west" &
                                                         df_age_inf$sex == "Female" &
-                                                        df_age_inf$age == 2])))
+                                                        df_age_inf$age == 3])))
 fixp2f <- length(which(!(2002:2021 %in% df_age_inf$year[df_age_inf$study_area == "west" &
                                                         df_age_inf$sex == "Female" &
-                                                        df_age_inf$age == 1])))
+                                                        df_age_inf$age == 2])))
 fixp1f <- length(which(!(2002:2021 %in% df_age_inf$year[df_age_inf$study_area == "west" &
+                                                        df_age_inf$sex == "Female" &
+                                                        df_age_inf$age == 1])))
+fixp0f <- length(which(!(2002:2021 %in% df_age_inf$year[df_age_inf$study_area == "west" &
                                                         df_age_inf$sex == "Female" &
                                                         df_age_inf$age == 0])))
 
@@ -1417,9 +1430,6 @@ df_age_sus <- arrange(df_age_sus,study_area,year,sex,age)
 ### levels and adding those rows to the end of the aah df w/o cwdstatus
 ###
 ###################################################################
-unique(df_aah_notest$year)
-length(unique(df_aah_notest$year))
-df_aah_notest$age
 
 ### to check corrections run all of the following... 
 ### only needed to correct fixp9m b/c that's the only one >0
@@ -1471,8 +1481,6 @@ df_aah_notest <-rbind(df_aah_notest,
                               age = rep(9, fixp9m),
                              n = rep(0, fixp9m)))
 
-i=6
-
 #### these are all equal, so implementing expansion in a for loop
 # fixp6m
 # fixp4m
@@ -1501,13 +1509,13 @@ fixp2f <-length(which(!(1983:2021 %in% df_aah_notest$year[df_aah_notest$study_ar
 fixp1f <-length(which(!(1983:2021 %in% df_aah_notest$year[df_aah_notest$study_area == "west" & df_aah_notest$sex=="Female" & df_aah_notest$age==1])))
 fixp0f <-length(which(!(1983:2021 %in% df_aah_notest$year[df_aah_notest$study_area == "west" & df_aah_notest$sex=="Female" & df_aah_notest$age==0])))
 
-# fixp9f
-# fixp6f
-# fixp4f
-# fixp3f
-# fixp2f
-# fixp1f
-# fixp0f
+fixp9f
+fixp6f
+fixp4f
+fixp3f
+fixp2f
+fixp1f
+fixp0f
 
 #### these area all the same, so using a for loop to make correction expansion of dataframe
 for(i in c(0,1,2,3,4,6,9)){
