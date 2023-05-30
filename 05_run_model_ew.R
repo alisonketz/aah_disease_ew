@@ -647,7 +647,7 @@ parameters <- c("fec",
               )
 n_thin <- 1
 n_chains <- 3
-reps <- 1000
+reps <- 100000
 bin <- reps*.5
 starttime <- Sys.time()
 confMCMC <- configureMCMC(Rmodel,

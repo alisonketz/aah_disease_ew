@@ -46,10 +46,18 @@ gelman.diag(out[,"fec[28]"])
 # gelman.diag(out[,"sn_inf[2, 1, 1]"])
 # gelman.diag(out[,"sn_sus[20, 1, 1]"])
 # gelman.diag(out[,"sn_inf[20, 1, 1]"])
-gelman.diag(out[,"tau_obs[1]"])
-gelman.diag(out[,"tau_obs[2]"])
-gelman.diag(out[,"tau_pop[1]"])
-gelman.diag(out[,"tau_pop[2]"])
+gelman.diag(out[,"tau_obs[1, 1]"])
+gelman.diag(out[,"tau_obs[2, 1]"])
+gelman.diag(out[,"tau_obs[1, 2]"])
+gelman.diag(out[,"tau_obs[2, 2]"])
+
+gelman.diag(out[,"tau_pop[1, 1]"])
+gelman.diag(out[,"tau_pop[1, 2]"])
+gelman.diag(out[,"tau_pop[2, 1]"])
+gelman.diag(out[,"tau_pop[2, 2]"])
+
+gelman.diag(out[,grep("fec",rownames(fit_sum))], multivariate = FALSE)
+
 
 # gelman.diag(out[,"tau_pop_pos"])
 
@@ -67,7 +75,10 @@ traceplot(out[,"mu_obs[1, 1]"],ylab="mu_obs[1, 1]")
 traceplot(out[,"mu_obs[2, 1]"],ylab="mu_obs[2, 1]")
 traceplot(out[,"mu_fec"],ylab="mu_fec")
 traceplot(out[,"fec[8]"],ylab="fec[8]")
-traceplot(out[,"fec[15]"],ylab="fec[15]")
+traceplot(out[,"fec[14]"],ylab="fec[14]: 2015")
+traceplot(out[,"fec[15]"],ylab="fec[15]: 2016")
+traceplot(out[,"fec[16]"],ylab="fec[16]: 2017")
+
 traceplot(out[,"fec[28]"],ylab="fec[28]")
 
 # traceplot(out[,"sn_sus[1, 1, 1]"],ylab="sn_sus[1, 1, 1]")
@@ -77,15 +88,21 @@ traceplot(out[,"fec[28]"],ylab="fec[28]")
 # traceplot(out[,"sn_inf[1, 1, 21]"],ylab="sn_inf[1, 1, 21]")
 # traceplot(out[,"sn_inf[1, 1, 2]"],ylab="sn_inf[1, 1, 2]")
 
-traceplot(out[,"tau_obs[1]"],ylab="tau_obs[1]: antlerless")
-traceplot(out[,"tau_obs[2]"],ylab="tau_obs[2]: antlered")
+traceplot(out[,"tau_obs[1, 1]"],ylab="tau_obs[1, 1]: antlerless east")
+traceplot(out[,"tau_obs[2, 1]"],ylab="tau_obs[2, 1]: antlerless west")
+traceplot(out[,"tau_obs[1, 2]"],ylab="tau_obs[1, 2]: antlered east")
+traceplot(out[,"tau_obs[2, 2]"],ylab="tau_obs[1, 2]: antlered west")
+
 # traceplot(out[,"tau_pop_inf_f"],ylab="tau_pop_inf_f")
 
-traceplot(out[,"tau_pop[1]"],ylab="tau_pop[1]")
-traceplot(out[,"tau_pop[2]"],ylab="tau_pop[2]")
+traceplot(out[,"tau_pop[1, 1]"],ylab="tau_pop[1, 1]: female east")
+traceplot(out[,"tau_pop[2, 1]"],ylab="tau_pop[2, 1]: female west")
+traceplot(out[,"tau_pop[1, 2]"],ylab="tau_pop[1, 2]: male east")
+traceplot(out[,"tau_pop[2, 2]"],ylab="tau_pop[1, 2]: male west")
+
+# traceplot(out[,"tau_pop[2]"],ylab="tau_pop[2]")
 # traceplot(out[,"tau_pop[3]"],ylab="tau_pop[3]")
 # traceplot(out[,"tau_pop[4]"],ylab="tau_pop[4]")
-
 
 # traceplot(out[,"tau_pop_pos"],ylab="tau_pop_pos")
 traceplot(out[,"report[1]"],ylab="report_overall")
@@ -95,7 +112,7 @@ traceplot(out[,"report[16]"],ylab="report[16]: 2017")
 traceplot(out[,"report[17]"],ylab="report[17]: 2018")
 traceplot(out[,"report[18]"],ylab="report[18]: 2019")
 traceplot(out[,"report[19]"],ylab="report[19]: 2020")
-traceplot(out[,"eab_antlerless[3]"],ylab="eab_antlerless[3]")
+# traceplot(out[,"eab_antlerless[3]"],ylab="eab_antlerless[3]")
 dev.off()
 
 round(fit_sum[grep("fec",rownames(fit_sum)),],2)
